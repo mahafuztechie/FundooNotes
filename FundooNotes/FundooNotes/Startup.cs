@@ -41,7 +41,7 @@ namespace FundooNotes
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Fundoo-Notes API's", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "FundooNotes API's", Version = "v1" });
                 var securitySchema = new OpenApiSecurityScheme
                 {
                     Description = "Authorization with Bearer scheme.",
@@ -60,8 +60,24 @@ namespace FundooNotes
                 {
                     { securitySchema, new[] { "Bearer" } }
                 });
+
             });
-          
+            services.AddAuthentication(option =>
+            {
+                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = false,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(Configuration["Jwt:SecretKey"])) // Configuration["JwtToken:SecretKey"]
+                };
+            });
         }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
