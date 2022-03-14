@@ -85,5 +85,95 @@ namespace RepositoryLayer.Sevice
                 throw;
             }
         }
+
+        public bool DeleteNote(long noteId)
+        {
+            try
+            {
+                // Fetch details with the given noteId.
+                var note = this.fundooContext.Notes.Where(n => n.NotesId == noteId).FirstOrDefault();
+                if (note != null)
+                {
+                    // Remove Note details from database
+                    this.fundooContext.Notes.Remove(note);
+
+                    // Save Changes Made in the database
+                    this.fundooContext.SaveChanges();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public NotesEntity getNote(long noteId)
+        {
+            try
+            {
+                // Fetch details with the given noteId.
+                var note = this.fundooContext.Notes.Where(n => n.NotesId == noteId).FirstOrDefault();
+                if (note != null)
+                {
+                   
+                    return note;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public List<NotesEntity> GetNotesByUserId(long userId)
+        {
+            try
+            {
+                //fetch all the notes with user id
+                var notes = this.fundooContext.Notes.Where(n => n.Id == userId).ToList();
+                if (notes != null)
+                {
+                    return notes;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public List<NotesEntity> GetAllNotes()
+        {
+            try
+            {
+                // Fetch All the details from Notes Table
+                var notes = this.fundooContext.Notes.ToList();
+                if (notes != null)
+                {
+                    return notes;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }
