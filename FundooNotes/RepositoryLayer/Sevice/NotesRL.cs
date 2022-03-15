@@ -1,4 +1,8 @@
-﻿using CommonLayer.Model;
+﻿using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using CommonLayer.Model;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using RepositoryLayer.Context;
 using RepositoryLayer.Entity;
 using RepositoryLayer.Interface;
@@ -12,9 +16,11 @@ namespace RepositoryLayer.Sevice
     public class NotesRL : INotesRL
     {
         public readonly FundooContext fundooContext;
-        public NotesRL(FundooContext fundooContext)
+        private readonly IConfiguration configuration;
+        public NotesRL(FundooContext fundooContext, IConfiguration configuration)
         {
             this.fundooContext = fundooContext;
+            this.configuration = configuration;
         }
 
         public NotesEntity CreateNote(NotesModel notesModel, long UserId)
@@ -54,18 +60,16 @@ namespace RepositoryLayer.Sevice
             }
         }
 
-        public NotesEntity UpdateNote(NotesModel notesModel, long noteId)
+        public NotesEntity UpdateNote(UpdatNoteModel notesModel, long noteId, long userId)
         {
             try
             {
                 // Fetch All the details with the given noteId.
-                var note = this.fundooContext.Notes.Where(u => u.NotesId == noteId).FirstOrDefault();
+                var note = this.fundooContext.Notes.Where(u => u.NotesId == noteId && u.Id == userId).FirstOrDefault();
                 if (note != null)
                 {
                     note.Title = notesModel.Title;
                     note.Description = notesModel.Description;
-                    note.Color = notesModel.Color;
-                    note.Image = notesModel.Image;
                     note.modifiedAt = notesModel.modifiedAt;
 
                     // Update database for given NoteId.
@@ -86,12 +90,12 @@ namespace RepositoryLayer.Sevice
             }
         }
 
-        public bool DeleteNote(long noteId)
+        public bool DeleteNote(long noteId, long userId)
         {
             try
             {
                 // Fetch details with the given noteId.
-                var note = this.fundooContext.Notes.Where(n => n.NotesId == noteId).FirstOrDefault();
+                var note = this.fundooContext.Notes.Where(n => n.NotesId == noteId && n.Id == userId).FirstOrDefault();
                 if (note != null)
                 {
                     // Remove Note details from database
@@ -112,12 +116,13 @@ namespace RepositoryLayer.Sevice
             }
         }
 
-        public NotesEntity getNote(long noteId)
+        public NotesEntity getNote(long noteId, long userId)
         {
             try
             {
+
                 // Fetch details with the given noteId.
-                var note = this.fundooContext.Notes.Where(n => n.NotesId == noteId).FirstOrDefault();
+                var note = this.fundooContext.Notes.Where(n => n.NotesId == noteId && n.Id == userId).FirstOrDefault();
                 if (note != null)
                 {
                    
@@ -164,6 +169,141 @@ namespace RepositoryLayer.Sevice
                 if (notes != null)
                 {
                     return notes;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public NotesEntity IsArchieveOrNot(long noteId, long userId)
+        {
+            try
+            {
+                // Fetch All the details with the given noteId and userId
+                var notes = this.fundooContext.Notes.Where(n => n.NotesId == noteId && n.Id == userId).FirstOrDefault();
+                if (notes != null)
+                {
+                    if (notes.IsArchive == false)
+                    {
+                        notes.IsArchive = true;
+                        this.fundooContext.SaveChanges();
+                        return notes;
+                    }
+                    else
+                    {
+                        notes.IsArchive = false;
+                        this.fundooContext.SaveChanges();
+                        return notes;
+                    }
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public NotesEntity IsTrashOrNot(long noteId, long userId)
+        {
+            try
+            {
+                // Fetch All the details with the given noteId and userId
+                var notes = this.fundooContext.Notes.Where(n => n.NotesId == noteId && n.Id == userId).FirstOrDefault();
+                if (notes != null)
+                {
+                    if (notes.IsTrash == false)
+                    {
+                        notes.IsTrash = true;
+                        this.fundooContext.SaveChanges();
+                        return notes;
+                    }
+                    else
+                    {
+                        notes.IsTrash = false;
+                        this.fundooContext.SaveChanges();
+                        return notes;
+                    }
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public NotesEntity IsPinnedOrNot(long noteId, long userId)
+        {
+            try
+            {
+                // Fetch All the details with the given noteId and userId
+                var notes = this.fundooContext.Notes.Where(n => n.NotesId == noteId && n.Id == userId).FirstOrDefault();
+                if (notes != null)
+                {
+                    if (notes.IsPinned == false)
+                    {
+                        notes.IsPinned = true;
+                        this.fundooContext.SaveChanges();
+                        return notes;
+                    }
+                    else
+                    {
+                        notes.IsPinned = false;
+                        this.fundooContext.SaveChanges();
+                        return notes;
+                    }
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public NotesEntity UploadImage(long noteId, long userId, IFormFile image)
+        {
+            try
+            {
+                // Fetch All the details with the given noteId and userId
+                var note = this.fundooContext.Notes.FirstOrDefault(n => n.NotesId == noteId && n.Id == userId);
+                if (note != null)
+                {
+                    Account acc = new Account(configuration["Cloudinary:CloudName"], configuration["Cloudinary:ApiKey"], configuration["Cloudinary:ApiSecret"]);
+                    Cloudinary cloud = new Cloudinary(acc);
+                    var imagePath = image.OpenReadStream();
+                    var uploadParams = new ImageUploadParams()
+                    {
+                        File = new FileDescription(image.FileName, imagePath),
+                    };
+                    var uploadResult = cloud.Upload(uploadParams);
+                    note.Image = image.FileName;
+                    this.fundooContext.Notes.Update(note);
+                    int upload = this.fundooContext.SaveChanges();
+                    if (upload > 0)
+                    {
+                        return note;
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
                 else
                 {
