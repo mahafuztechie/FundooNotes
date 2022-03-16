@@ -93,24 +93,17 @@ namespace FundooNotes.Controllers
             }
         }
         [Authorize]
-        [HttpGet("{Id}/Getnotes")]
-        public IActionResult GetNotesByUserId(long Id)
+        [HttpGet("Getnotes")]
+        public IActionResult GetNotesByUserId()
         {
             try
             {
                 long userId = Convert.ToInt32(User.Claims.FirstOrDefault(e => e.Type == "Id").Value);
-                if (userId.Equals(Id))
+               
+                var notes = this.notesBL.GetNotesByUserId(userId);
+                if (notes != null)
                 {
-                    var notes = this.notesBL.GetNotesByUserId(Id);
-                    if (notes != null)
-                    {
-                        return this.Ok(new { Success = true, message = "Notes are displayed", data = notes });
-                    }
-                    else
-                    {
-                        return this.BadRequest(new { Success = false, message = "failed to Display the notes" });
-                    }
-
+                    return this.Ok(new { Success = true, message = "Notes are displayed", data = notes });
                 }
                 else
                 {
@@ -124,7 +117,7 @@ namespace FundooNotes.Controllers
             }
         }
         [Authorize]
-        [HttpGet("GetNote")]
+        [HttpGet("{noteId}/GetNote")]
         public IActionResult GetNote(long noteId)
         {
             try
@@ -232,6 +225,28 @@ namespace FundooNotes.Controllers
                 else
                 {
                     return this.BadRequest(new { Success = false, message = "Image Upload Failed ! Try Again " });
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [HttpPut("colour")]
+        public IActionResult UpdateColour(long noteId, string color)
+        {
+            try
+            {
+                long userId = Convert.ToInt32(User.Claims.FirstOrDefault(e => e.Type == "Id").Value);
+                var notes = this.notesBL.ChangeColour(noteId, userId, color);
+                if (notes != null)
+                {
+                    return this.Ok(new { Success = true, message = " colour Added successfully ", data = notes });
+                }
+                else
+                {
+                    return this.BadRequest(new { Success = false, message = "failed to add colour" });
                 }
             }
             catch (Exception)

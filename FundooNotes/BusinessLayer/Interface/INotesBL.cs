@@ -21,6 +21,7 @@ namespace BusinessLayer.Interface
         public NotesEntity IsPinnedOrNot(long noteId, long userId);
 
         public NotesEntity UploadImage(long noteId, long userId, IFormFile image);
+        public NotesEntity ChangeColour(long noteId, long userId, string color);
 
     }
 }

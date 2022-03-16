@@ -315,5 +315,30 @@ namespace RepositoryLayer.Sevice
                 throw;
             }
         }
+
+        public NotesEntity ChangeColour(long noteId, long userId, string color)
+        {
+            try
+            {
+                var notes = this.fundooContext.Notes.FirstOrDefault(a => a.NotesId == noteId && a.Id == userId);
+                if (notes != null)
+                {
+                    notes.Color = color;
+                    this.fundooContext.SaveChanges();
+                    return notes;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+
     }
 }
