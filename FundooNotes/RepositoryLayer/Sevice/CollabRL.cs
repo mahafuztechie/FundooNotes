@@ -25,7 +25,6 @@ namespace RepositoryLayer.Sevice
             {
                 CollaboratorEntity collaboration = new CollaboratorEntity();
                 var user = fundooContext.User.Where(e => e.Email == collaboratorModel.CollabEmail).FirstOrDefault();
-
                 var notes = fundooContext.Notes.Where(e => e.NotesId == collaboratorModel.NoteID && e.Id == collaboratorModel.Id).FirstOrDefault();
                 if (notes != null && user!= null)
                 {

@@ -41,7 +41,7 @@ namespace FundooNotes.Controllers
                 }
                 else
                 {
-                    return this.BadRequest(new { Success = false, message = "User access is denied" });
+                    return this.BadRequest(new { Success = false, message = "Failed to add collaborator" });
                 }
 
 
