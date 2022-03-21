@@ -13,7 +13,7 @@ namespace BusinessLayer.Interface
 
         public IEnumerable<CollaboratorEntity> GetByNoteId(long noteId, long userId);
 
-        
+        public IEnumerable<CollaboratorEntity> GetAllCollab();
 
     }
 }

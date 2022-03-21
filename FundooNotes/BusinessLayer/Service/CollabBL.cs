@@ -29,6 +29,18 @@ namespace BusinessLayer.Service
             }
         }
 
+        public IEnumerable<CollaboratorEntity> GetAllCollab()
+        {
+            try
+            {
+                return this.collabRL.GetAllCollab();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public IEnumerable<CollaboratorEntity> GetByNoteId(long noteId, long userId)
         {
             try
@@ -52,5 +64,6 @@ namespace BusinessLayer.Service
                 throw;
             }
         }
+
     }
 }

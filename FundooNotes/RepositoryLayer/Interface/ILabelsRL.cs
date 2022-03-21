@@ -12,5 +12,6 @@ namespace RepositoryLayer.Interface
         public bool RemoveLabel(long userID, string labelName);
         public bool RemoveLabelByNoteID(long userID, long noteID, string labelName);
         public IEnumerable<LabelsEntity> GetLabelsByNoteID(long userID, long noteID);
+        public IEnumerable<LabelsEntity> GetAllLabels();
     }
 }

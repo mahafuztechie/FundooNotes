@@ -90,6 +90,27 @@ namespace RepositoryLayer.Sevice
                 throw;
             }
         }
-     
+
+        public IEnumerable<CollaboratorEntity> GetAllCollab()
+        {
+            try
+            {
+                // Fetch All the details from Collab Table
+                var collabs = this.fundooContext.Collab.ToList();
+                if (collabs != null)
+                {
+                    return collabs;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }

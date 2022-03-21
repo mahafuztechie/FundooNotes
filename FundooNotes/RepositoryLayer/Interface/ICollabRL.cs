@@ -12,6 +12,7 @@ namespace RepositoryLayer.Interface
         public CollaboratorEntity RemoveCollab(long userId, long collabId);
 
         public IEnumerable<CollaboratorEntity> GetByNoteId(long noteId, long userId);
+        public IEnumerable<CollaboratorEntity> GetAllCollab();
 
     }
 }
