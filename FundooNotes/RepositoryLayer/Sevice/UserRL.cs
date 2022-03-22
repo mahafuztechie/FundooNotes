@@ -27,16 +27,24 @@ namespace RepositoryLayer.Sevice
         {
             try
             {
-                UserEntity userEntity = new UserEntity();
-                userEntity.FirstName = User.FirstName;
-                userEntity.LastName = User.LastName;
-                userEntity.Email = User.Email;
-                userEntity.Password = User.Password;
-                fundooContext.Add(userEntity);
-                int result = fundooContext.SaveChanges();
-                if (result > 0)
+                var user = this.fundooContext.User.FirstOrDefault(u => u.Email == User.Email);
+                if (user == null)
                 {
-                    return userEntity;
+                    UserEntity userEntity = new UserEntity();
+                    userEntity.FirstName = User.FirstName;
+                    userEntity.LastName = User.LastName;
+                    userEntity.Email = User.Email;
+                    userEntity.Password = this.PasswordEncrypt(User.Password);
+                    fundooContext.Add(userEntity);
+                    int result = fundooContext.SaveChanges();
+                    if (result > 0)
+                    {
+                        return userEntity;
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
                 else
                 {
@@ -54,9 +62,21 @@ namespace RepositoryLayer.Sevice
         {
             try
             {
-                var user = fundooContext.User.Where(x => x.Email == userLogin.Email && x.Password == userLogin.Password).FirstOrDefault();
-                string token = GenerateSecurityToken(user.Email, user.Id);
-                return token;
+                // if Email and password is empty return null. 
+                if (string.IsNullOrEmpty(userLogin.Email) || string.IsNullOrEmpty(userLogin.Password))
+                {
+                    return null;
+                }
+
+                var result = fundooContext.User.Where(x => x.Email == userLogin.Email).FirstOrDefault();
+                string dcryptPass = this.PasswordDecrypt(result.Password);
+                if (result != null && dcryptPass == userLogin.Password)
+                {
+                    string token = GenerateSecurityToken(result.Email, result.Id);
+                    return token;
+                }
+                else
+                    return null;   
             }
             catch (Exception)
             {
