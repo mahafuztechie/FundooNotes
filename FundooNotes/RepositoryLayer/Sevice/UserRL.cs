@@ -67,7 +67,6 @@ namespace RepositoryLayer.Sevice
                 {
                     return null;
                 }
-
                 var result = fundooContext.User.Where(x => x.Email == userLogin.Email).FirstOrDefault();
                 string dcryptPass = this.PasswordDecrypt(result.Password);
                 if (result != null && dcryptPass == userLogin.Password)
@@ -124,14 +123,13 @@ namespace RepositoryLayer.Sevice
         }
 
         public bool ResetPassword(string email, string password, string confirmPassword)
-
         {
             try
             {
                 if (password.Equals(confirmPassword))
                 {
                     var user = fundooContext.User.Where(x => x.Email == email).FirstOrDefault();
-                    user.Password = confirmPassword;
+                    user.Password = this.PasswordEncrypt(confirmPassword);
                     fundooContext.SaveChanges();
                     return true;
 
