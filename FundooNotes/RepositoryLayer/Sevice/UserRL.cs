@@ -128,7 +128,7 @@ namespace RepositoryLayer.Sevice
             }
         }
 
-        public string PassWordEncrypt(string password)
+        public string PasswordEncrypt(string password)
         {
             try
             {
@@ -143,6 +143,23 @@ namespace RepositoryLayer.Sevice
             }
         }
 
-      
+        public string PasswordDecrypt(string encodedPass)
+        {
+            try
+            {
+                UTF8Encoding encoder = new UTF8Encoding();
+                Decoder utf8Decode = encoder.GetDecoder();
+                byte[] toDecodeByte = Convert.FromBase64String(encodedPass);
+                int charCount = utf8Decode.GetCharCount(toDecodeByte, 0, toDecodeByte.Length);
+                char[] decodedChar = new char[charCount];
+                utf8Decode.GetChars(toDecodeByte, 0, toDecodeByte.Length, decodedChar, 0);
+                string PassDecrypt= new string(decodedChar);
+                return PassDecrypt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }
