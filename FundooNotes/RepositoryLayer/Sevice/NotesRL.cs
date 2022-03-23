@@ -1,29 +1,50 @@
-﻿using CloudinaryDotNet;
-using CloudinaryDotNet.Actions;
-using CommonLayer.Model;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using RepositoryLayer.Context;
-using RepositoryLayer.Entity;
-using RepositoryLayer.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿//-----------------------------------------------------------------------
+// <copyright file="NotesRL.cs" company="mahafuz">
+//     Company copyright tag.
+// </copyright>
+//--
 namespace RepositoryLayer.Sevice
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using CloudinaryDotNet;
+    using CloudinaryDotNet.Actions;
+    using CommonLayer.Model;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.Extensions.Configuration;
+    using RepositoryLayer.Context;
+    using RepositoryLayer.Entity;
+    using RepositoryLayer.Interface;
+
+    /// <summary>
+    ///  Notes Repository layer class
+    /// </summary>
     public class NotesRL : INotesRL
     {
-        public readonly FundooContext fundooContext;
+        /// <summary>The  object reference</summary>
+        private readonly FundooContext fundooContext;
+
+        /// <summary>The configuration object reference</summary>
         private readonly IConfiguration configuration;
+
+        /// <summary>Initializes a new instance of the <see cref="NotesRL" /> class.</summary>
+        /// <param name="fundooContext">The context object reference.</param>
+        /// <param name="configuration">The configuration object reference</param>
         public NotesRL(FundooContext fundooContext, IConfiguration configuration)
         {
             this.fundooContext = fundooContext;
             this.configuration = configuration;
         }
 
-        public NotesEntity CreateNote(NotesModel notesModel, long UserId)
+        /// <summary>Creates the note.</summary>
+        /// <param name="notesModel">The notes model.</param>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns>
+        ///   Notes entity after note is created
+        /// </returns>
+        public NotesEntity CreateNote(NotesModel notesModel, long userId)
         {
             try 
             { 
@@ -39,12 +60,12 @@ namespace RepositoryLayer.Sevice
                 IsPinned = notesModel.IsPinned,
                 createdAt = notesModel.createdAt,
                 modifiedAt = notesModel.modifiedAt,
-                Id = UserId
+                Id = userId
                 };
                 this.fundooContext.Notes.Add(notes);
 
-            // Save Changes Made in the database
-                 int result = this.fundooContext.SaveChanges();
+                // Save Changes Made in the database
+                int result = this.fundooContext.SaveChanges();
                 if (result > 0)
                 {
                     return notes;
@@ -60,6 +81,13 @@ namespace RepositoryLayer.Sevice
             }
         }
 
+        /// <summary>Updates the note.</summary>
+        /// <param name="notesModel">The notes model.</param>
+        /// <param name="noteId">The note identifier.</param>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns>
+        ///   Notes Entity of updated note
+        /// </returns>
         public NotesEntity UpdateNote(UpdatNoteModel notesModel, long noteId, long userId)
         {
             try
@@ -90,6 +118,12 @@ namespace RepositoryLayer.Sevice
             }
         }
 
+        /// <summary>Deletes the note.</summary>
+        /// <param name="noteId">The note identifier.</param>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns>
+        ///   return true if note is deleted
+        /// </returns>
         public bool DeleteNote(long noteId, long userId)
         {
             try
@@ -116,16 +150,20 @@ namespace RepositoryLayer.Sevice
             }
         }
 
-        public NotesEntity getNote(long noteId, long userId)
+        /// <summary>Gets the note.</summary>
+        /// <param name="noteId">The note identifier.</param>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns>
+        ///   note for matching note id
+        /// </returns>
+        public NotesEntity GetNote(long noteId, long userId)
         {
             try
             {
-
                 // Fetch details with the given noteId.
                 var note = this.fundooContext.Notes.Where(n => n.NotesId == noteId && n.Id == userId).FirstOrDefault();
                 if (note != null)
-                {
-                   
+                { 
                     return note;
                 }
                 else
@@ -139,11 +177,16 @@ namespace RepositoryLayer.Sevice
             }
         }
 
+        /// <summary>Gets the notes by user identifier.</summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns>
+        ///   list of notes for user
+        /// </returns>
         public List<NotesEntity> GetNotesByUserId(long userId)
         {
             try
             {
-                //fetch all the notes with user id
+                ////fetch all the notes with user id
                 var notes = this.fundooContext.Notes.Where(n => n.Id == userId).ToList();
                 if (notes != null)
                 {
@@ -156,16 +199,21 @@ namespace RepositoryLayer.Sevice
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
+
+        /// <summary>Gets all notes.</summary>
+        /// <returns>
+        ///   list of notes from database
+        /// </returns>
         public List<NotesEntity> GetAllNotes()
         {
             try
             {
                 // Fetch All the details from Notes Table
                 var notes = this.fundooContext.Notes.ToList();
+
                 if (notes != null)
                 {
                     return notes;
@@ -181,12 +229,19 @@ namespace RepositoryLayer.Sevice
             }
         }
 
+        /// <summary>Determines whether [is archive or not] [the specified note identifier].</summary>
+        /// <param name="noteId">The note identifier.</param>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns>
+        ///   notes entity if note is archive or not
+        /// </returns>
         public NotesEntity IsArchieveOrNot(long noteId, long userId)
         {
             try
             {
                 // Fetch All the details with the given noteId and userId
                 var notes = this.fundooContext.Notes.Where(n => n.NotesId == noteId && n.Id == userId).FirstOrDefault();
+
                 if (notes != null)
                 {
                     if (notes.IsArchive == false)
@@ -213,6 +268,12 @@ namespace RepositoryLayer.Sevice
             }
         }
 
+        /// <summary>Determines whether [is trash or not] [the specified note identifier].</summary>
+        /// <param name="noteId">The note identifier.</param>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns>
+        ///   notes entity if note is in trash or not
+        /// </returns>
         public NotesEntity IsTrashOrNot(long noteId, long userId)
         {
             try
@@ -245,6 +306,12 @@ namespace RepositoryLayer.Sevice
             }
         }
 
+        /// <summary>Determines whether [is pinned or not] [the specified note identifier].</summary>
+        /// <param name="noteId">The note identifier.</param>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns>
+        ///   Notes entity if note is pinned or not
+        /// </returns>
         public NotesEntity IsPinnedOrNot(long noteId, long userId)
         {
             try
@@ -277,6 +344,13 @@ namespace RepositoryLayer.Sevice
             }
         }
 
+        /// <summary>
+        /// Uploads the image.
+        /// </summary>
+        /// <param name="noteId">The note identifier.</param>
+        /// <param name="userId">The user identifier.</param>
+        /// <param name="image">The image.</param>
+        /// <returns>user entity after image upload</returns>
         public NotesEntity UploadImage(long noteId, long userId, IFormFile image)
         {
             try
@@ -285,7 +359,7 @@ namespace RepositoryLayer.Sevice
                 var note = this.fundooContext.Notes.FirstOrDefault(n => n.NotesId == noteId && n.Id == userId);
                 if (note != null)
                 {
-                    Account acc = new Account(configuration["Cloudinary:CloudName"], configuration["Cloudinary:ApiKey"], configuration["Cloudinary:ApiSecret"]);
+                    Account acc = new Account(this.configuration["Cloudinary:CloudName"], this.configuration["Cloudinary:ApiKey"], this.configuration["Cloudinary:ApiSecret"]);
                     Cloudinary cloud = new Cloudinary(acc);
                     var imagePath = image.OpenReadStream();
                     var uploadParams = new ImageUploadParams()
@@ -316,10 +390,18 @@ namespace RepositoryLayer.Sevice
             }
         }
 
+        /// <summary>Changes the color.</summary>
+        /// <param name="noteId">The note identifier.</param>
+        /// <param name="userId">The user identifier.</param>
+        /// <param name="color">The color.</param>
+        /// <returns>
+        ///   Change color of note
+        /// </returns>
         public NotesEntity ChangeColour(long noteId, long userId, string color)
         {
             try
             {
+                //change color for specific note
                 var notes = this.fundooContext.Notes.FirstOrDefault(a => a.NotesId == noteId && a.Id == userId);
                 if (notes != null)
                 {
@@ -334,11 +416,8 @@ namespace RepositoryLayer.Sevice
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
-
-       
     }
 }

@@ -1,28 +1,49 @@
-﻿using BusinessLayer.Interface;
-using CommonLayer.Model;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
-using Newtonsoft.Json;
-using RepositoryLayer.Entity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿// <copyright file="CollaboratorController.cs" company="mahafuz">
+//     Company copyright tag.
+// </copyright>
 namespace FundooNotes.Controllers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using BusinessLayer.Interface;
+    using CommonLayer.Model;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Caching.Distributed;
+    using Microsoft.Extensions.Caching.Memory;
+    using Newtonsoft.Json;
+    using RepositoryLayer.Entity;
+
+    /// <summary>
+    ///   Collaborator controller
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class CollaboratorController : ControllerBase
     {
+        /// <summary>
+        /// The collaborator object reference
+        /// </summary>
         private readonly ICollabBL collabBL;
+
+        /// <summary>
+        /// The memory cache object reference
+        /// </summary>
         private readonly IMemoryCache memoryCache;
+
+        /// <summary>
+        /// The distributed cache object reference
+        /// </summary>
         private readonly IDistributedCache distributedCache;
 
+        /// <summary>Initializes a new instance of the <see cref="CollaboratorController" /> class.</summary>
+        /// <param name="collabBL">The collaborator business layer.</param>
+        /// <param name="memoryCache">The memory cache.</param>
+        /// <param name="distributedCache">The distributed cache.</param>
         public CollaboratorController(ICollabBL collabBL, IMemoryCache memoryCache, IDistributedCache distributedCache)
         {
             this.collabBL = collabBL;
@@ -30,6 +51,12 @@ namespace FundooNotes.Controllers
             this.distributedCache = distributedCache;
         }
 
+        /// <summary>Adds the collaborator.</summary>
+        /// <param name="email">The email.</param>
+        /// <param name="noteId">The note identifier.</param>
+        /// <returns>
+        ///   a collaborator entity
+        /// </returns>
         [Authorize]
         [HttpPost("Add")]
         public IActionResult AddCollab(string email, long noteId)
@@ -41,7 +68,7 @@ namespace FundooNotes.Controllers
                 collaboratorModel.Id = userId;
                 collaboratorModel.NoteID = noteId;
                 collaboratorModel.CollabEmail = email;
-                var result = collabBL.AddCollaborator(collaboratorModel);
+                var result = this.collabBL.AddCollaborator(collaboratorModel);
                 if (result != null)
                 {
                     return this.Ok(new { Success = true, message = "Collaborator added successfully", data = result });
@@ -50,8 +77,6 @@ namespace FundooNotes.Controllers
                 {
                     return this.BadRequest(new { Success = false, message = "Failed to add collaborator" });
                 }
-
-
             }
             catch (Exception)
             {
@@ -59,6 +84,11 @@ namespace FundooNotes.Controllers
             }
         }
 
+        /// <summary>Removes the collaborator.</summary>
+        /// <param name="collabId">The collaborator identifier.</param>
+        /// <returns>
+        ///   removed collaborator entity
+        /// </returns>
         [Authorize]
         [HttpDelete("Remove")]
         public IActionResult RemoveCollab(long collabId)
@@ -83,9 +113,14 @@ namespace FundooNotes.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets the by note identifier.
+        /// </summary>
+        /// <param name="noteId">The note identifier.</param>
+        /// <returns>collaborator entity by note id</returns>
         [Authorize]
         [HttpGet("{noteId}/Get")]
-        public IEnumerable<CollaboratorEntity> GetByNoteId(long noteId)
+        public IActionResult GetByNoteId(long noteId)
         {
             try
             {
@@ -93,11 +128,11 @@ namespace FundooNotes.Controllers
                 var result = this.collabBL.GetByNoteId(noteId, userId);
                 if (result != null)
                 {
-                    return result;
+                    return this.Ok(new { Success = true, message = " get collab is successfull ", data = result });
                 }
                 else
                 {
-                    return null;
+                    return this.BadRequest(new { Success = false, message = "couldn't  get collab, Failed ! Try Again" });
                 }
             }
             catch (Exception)
@@ -106,19 +141,23 @@ namespace FundooNotes.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets all collaborator.
+        /// </summary>
+        /// <returns>all collaborators</returns>
         [HttpGet("GetAll")]
-        public IEnumerable<CollaboratorEntity> GetAllCollab()
+        public IActionResult GetAllCollab()
         {
             try
             {
                 var result = this.collabBL.GetAllCollab();
                 if (result != null)
                 {
-                    return result;
+                    return this.Ok(new { Success = true, message = "Collaborators fetched successfully ", data = result });
                 }
                 else
                 {
-                    return null;
+                    return this.BadRequest(new { Success = false, message = "couldn't get collabs, Failed ! Try Again" });
                 }
             }
             catch (Exception)
@@ -127,6 +166,10 @@ namespace FundooNotes.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets all collaborator using (redis-cache).
+        /// </summary>
+        /// <returns>all collaborators by (redis-cache)</returns>
         [HttpGet("redis")]
         public async Task<IActionResult> GetAllCollabUsingRedisCache()
         {
@@ -152,6 +195,5 @@ namespace FundooNotes.Controllers
 
             return this.Ok(collabList);
         }
-
     }
 }
