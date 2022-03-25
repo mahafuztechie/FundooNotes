@@ -44,6 +44,6 @@ namespace BusinessLayer.Interface
         /// <param name="password">password</param>
         /// <param name="confirmPassword">confirm password</param>
         /// <returns>boolean value</returns>
-        public bool ResetPassword(string email, string password, string confirmPassword);
+        public bool ResetPassword(ResetPass resetPass, string email );
     }
 }

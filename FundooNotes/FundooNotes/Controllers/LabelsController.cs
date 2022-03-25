@@ -175,12 +175,20 @@ namespace FundooNotes.Controllers
         /// <returns>a list of labels by note id</returns>
         [Authorize]
         [HttpGet("get")]
-        public IEnumerable GetLabelsByNoteID(long noteID)
+        public IActionResult GetLabelsByNoteID(long noteID)
         {
             try
             {
                 long userID = Convert.ToInt32(User.Claims.FirstOrDefault(e => e.Type == "Id").Value);
-                return this.labelsBL.GetLabelsByNoteID(userID, noteID);
+                var result = this.labelsBL.GetLabelsByNoteID(userID, noteID);
+                if (result != null)
+                {
+                    return this.Ok(new { success = true, message = "Label removed successfully", Response = result });
+                }
+                else
+                {
+                    return this.BadRequest(new { success = false, message = "User access denied" });
+                }
             }
             catch (Exception)
             {

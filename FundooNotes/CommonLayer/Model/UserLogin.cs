@@ -5,6 +5,7 @@ namespace CommonLayer.Model
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
     using System.Text;
 
     /// <summary>
@@ -18,6 +19,7 @@ namespace CommonLayer.Model
         /// <value>
         /// The email.
         /// </value>
+        [Required]  
         public string Email { get; set; }
 
         /// <summary>
@@ -26,6 +28,7 @@ namespace CommonLayer.Model
         /// <value>
         /// The password.
         /// </value>
+        [Required]
         public string Password { get; set; }
     }
 }

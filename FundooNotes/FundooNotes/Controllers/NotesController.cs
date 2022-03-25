@@ -344,7 +344,7 @@ namespace FundooNotes.Controllers
         /// <param name="image">The image.</param>
         /// <returns>note after image uploaded</returns>
         [Authorize]
-        [HttpPost("ImageUpload")]
+        [HttpPost("ImageUpload/{noteId}")]
         public IActionResult UploadImage(long noteId, IFormFile image)
         {
             try

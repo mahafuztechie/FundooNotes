@@ -42,6 +42,6 @@ namespace RepositoryLayer.Interface
         /// <returns>
         ///   boolean value true after password is reset successfully
         /// </returns>
-        public bool ResetPassword(string email, string password, string confirmPassword);
+        public bool ResetPassword(ResetPass resetPass, string email);
     }
 }

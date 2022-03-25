@@ -11,6 +11,7 @@ namespace RepositoryLayer.Sevice
     using System.Linq;
     using System.Security.Claims;
     using System.Text;
+    using System.Text.RegularExpressions;
     using CommonLayer.Model;
     using Microsoft.Extensions.Configuration;
     using Microsoft.IdentityModel.Tokens;
@@ -72,9 +73,9 @@ namespace RepositoryLayer.Sevice
                     return null;
                 }
             }
-            catch (Exception)
+            catch (ArgumentNullException ex)
             {
-                throw;
+                throw ex;
             }
         }
 
@@ -105,9 +106,9 @@ namespace RepositoryLayer.Sevice
                     return null;
                 }       
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
@@ -133,9 +134,9 @@ namespace RepositoryLayer.Sevice
                     return null;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
@@ -146,15 +147,15 @@ namespace RepositoryLayer.Sevice
         /// <returns>
         ///   ResetPassword boolean value
         /// </returns>
-        public bool ResetPassword(string email, string password, string confirmPassword)
+        public bool ResetPassword(ResetPass resetPass, string email)
         {
             try
             {
                 //reset a new password 
-                if (password.Equals(confirmPassword))
+                if (resetPass.Password.Equals(resetPass.confirmPassword))
                 {
                     var user = this.fundooContext.User.Where(x => x.Email == email).FirstOrDefault();
-                    user.Password = this.PasswordEncrypt(confirmPassword);
+                    user.Password = this.PasswordEncrypt(resetPass.confirmPassword);
                     this.fundooContext.SaveChanges();
                     return true;
                 }
@@ -163,9 +164,9 @@ namespace RepositoryLayer.Sevice
                     return false;
                 }
             }
-            catch (Exception)
+            catch (ArgumentNullException ex)
             {
-                throw;
+                throw ex;
             }
         }
 
