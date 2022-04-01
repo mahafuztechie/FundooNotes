@@ -61,7 +61,7 @@ namespace CommonLayer.Model
                 SmtpClient smtpclient = new SmtpClient("smtp.gmail.com")
                 {
                     Port = 587,
-                    Credentials = new NetworkCredential("janto4115@gmail.com", "joeanto@123"),
+                    Credentials = new NetworkCredential("janto4115@gmail.com", "jabbawockeez@5"),
                     EnableSsl = true
                 };
                 mailMessage.From = new MailAddress("janto4115@gmail.com");

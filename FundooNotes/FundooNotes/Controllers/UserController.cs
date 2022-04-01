@@ -12,6 +12,7 @@ namespace FundooNotes.Controllers
     using CommonLayer.Model;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Logging;
     using RepositoryLayer.Entity;
 
     /// <summary>
@@ -26,6 +27,9 @@ namespace FundooNotes.Controllers
         /// The user business layer object reference
         /// </summary>
         private readonly IUserBL userBL;
+        private readonly ILogger<UserController> _logger;
+        string sessionName = "fullName";
+        string sessionEmail = "email";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserController"/> class.
@@ -34,6 +38,7 @@ namespace FundooNotes.Controllers
         public UserController(IUserBL userBL)
         {
             this.userBL = userBL;
+            
         }
 
         /// <summary>
@@ -46,18 +51,29 @@ namespace FundooNotes.Controllers
         {
             try
             {
+                HttpContext.Session.SetString(sessionName, user.FirstName);
+                HttpContext.Session.SetString(sessionEmail, user.Email);
+
+
                 var result = this.userBL.Registration(user);
                 if (result != null)
                 {
-                    return this.Ok(new ExceptionModel<UserEntity>() { Status = true, Message = "New User Added Successful", Data = result });
+                    string sName = HttpContext.Session.GetString(sessionName);
+                    string sEmail = HttpContext.Session.GetString(sessionEmail);
+
+
+                    // _logger.LogInformation("registeration successful");
+                    return this.Ok(new ExceptionModel<string>() { Status = true, Message = "New User Added Successful", Data = "Session || Name : " + sName + "|| Email Id : " + sEmail });
                 }
                 else
                 {
-                    return this.BadRequest(new ExceptionModel<string>() { Status = false, Message = "Registration UnSuccessfull" });
+                   // _logger.LogError("registration unsucessful");
+                    return this.BadRequest(new ExceptionModel<string>() { Status = false, Message = "Registration UnSuccessful" });
                 }
             }
             catch (Exception ex)
             {
+               // _logger.LogError(ex.ToString());
                 return this.NotFound(new ExceptionModel<string>() { Status = false, Message = ex.Message });
             }
         }
@@ -75,15 +91,18 @@ namespace FundooNotes.Controllers
                 var user = this.userBL.Login(userLogin);
                 if (user != null)
                 {
+                   // _logger.LogInformation("login successfull");
                     return this.Ok(new ExceptionModel<string>() { Status = true, Message = "Login Successful", Data = user });
                 }
                 else
                 {
+                    //_logger.LogError("login unsucessful");
                     return this.BadRequest(new ExceptionModel<string>() { Status = false, Message = "Enter Valid Email and Password" });
                 }
             }
             catch (Exception ex)
             {
+               // _logger.LogError(ex.ToString());
                 return this.NotFound(new ExceptionModel<string>() { Status = false, Message = ex.Message });
             }
         }
@@ -101,15 +120,18 @@ namespace FundooNotes.Controllers
                 var user = this.userBL.ForgetPassword(email);
                 if (user != null)
                 {
+                   // _logger.LogInformation("forgot password verification email sent");
                     return this.Ok(new ExceptionModel<string>() { Status = true, Message = "mail sent is successful" });
                 }
                 else
                 {
+                   // _logger.LogError("email is not valid");
                     return this.BadRequest(new ExceptionModel<string>() { Status = false, Message = "Enter Valid Email" });
                 }
             }
             catch (Exception ex)
             {
+               // _logger.LogError(ex.ToString());
                 return this.NotFound(new ExceptionModel<string>() { Status = false, Message = ex.Message });
             }
         }
@@ -125,20 +147,24 @@ namespace FundooNotes.Controllers
         {
             try
             {
-                var email = User.FindFirst(ClaimTypes.Email).Value.ToString();
+                //var email = User.FindFirst(ClaimTypes.Email).Value.ToString();
+                string  email = "shawn.3@gmail.com";
                 var user = this.userBL.ResetPassword(resetPass, email);
                 if (!user)
                 {
+                   // _logger.LogError("enter valid password");
                     return this.BadRequest(new ExceptionModel<string>() { Status = false, Message = "Enter Valid password" });
                 }
                 else
                 {
+                   // _logger.LogInformation("reset password successful");
                     return this.Ok(new ExceptionModel<string>() { Status = true, Message = "reset password is successful" });
                 }
             }
             catch (Exception ex)
             {
-               return this.NotFound(new ExceptionModel<string>() { Status = false, Message = ex.Message });
+              //  _logger.LogError(ex.ToString());
+                return this.NotFound(new ExceptionModel<string>() { Status = false, Message = ex.Message });
             }
         }
     }

@@ -30,13 +30,16 @@ namespace RepositoryLayer.Sevice
         /// <summary>The configuration object reference</summary>
         private readonly IConfiguration toolSettings;
 
+        private readonly string type =  "mahafuz1234567890ahmed0987654321";
+
         /// <summary>Initializes a new instance of the <see cref="UserRL" /> class.</summary>
         /// <param name="fundooContext">The context object reference.</param>
         /// <param name="toolSettings">The tool settings object reference.</param>
-        public UserRL(FundooContext fundooContext, IConfiguration toolSettings)
+        public UserRL(FundooContext fundooContext)
         {
             this.fundooContext = fundooContext;
-            this.toolSettings = toolSettings;
+         
+            
         }
 
         /// <summary>Registrations the specified user.</summary>
@@ -225,7 +228,7 @@ namespace RepositoryLayer.Sevice
         private string GenerateSecurityToken(string email, long id)
         {
             //genearte a jwt for authorization
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this.toolSettings["Jwt:SecretKey"]));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(type));
 
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var claims = new[] 
@@ -234,9 +237,9 @@ namespace RepositoryLayer.Sevice
                 new Claim("Id", id.ToString())
             };
             var token = new JwtSecurityToken(
-              this.toolSettings["Jwt:Issuer"],
-              this.toolSettings["Jwt:Issuer"],
-              claims,
+              //this.toolSettings["Jwt:Issuer"],
+              //this.toolSettings["Jwt:Issuer"],
+             // claims,
               expires: DateTime.Now.AddMinutes(60),
               signingCredentials: credentials);
 
